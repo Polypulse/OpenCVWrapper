@@ -14,24 +14,21 @@
 class OpenCVWrapper
 {
 public:
-	static OpenCVWrapper & Get ()
-	{
-		static OpenCVWrapper instance;
-		return instance;
-	}
-
-private:
 	OpenCVWrapper() {}
-
-public:
 	OpenCVWrapper(OpenCVWrapper const&) = delete;
 	void operator=(OpenCVWrapper const&) = delete;
 
-	bool FindChessboardCorners(
+	__declspec(dllexport) bool FindChessboardCorners(
 		cv::Mat image,
 		cv::Size patternSize,
-		float * outputArray,
-		// std::vector<cv::Point2f> imageCorners,
+		// float * outputArray,
+		std::vector<cv::Point2f> imageCorners,
 		int findFlags
 	);
 };
+
+extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
+{
+	static OpenCVWrapper instance;
+	return instance;
+}
