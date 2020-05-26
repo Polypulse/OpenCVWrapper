@@ -59,7 +59,7 @@ public:
 	void operator=(OpenCVWrapper const&) = delete;
 
 	__declspec(dllexport) bool ProcessImageFromFile (
-		const FResizeParameters & resizeParameters,
+		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		const std::string absoluteFilePath, 
 		float *& data);

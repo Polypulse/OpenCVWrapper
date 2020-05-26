@@ -8,7 +8,7 @@ extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
 }
 
 extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
-	const FResizeParameters & resizeParameters,
+	FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	const std::string absoluteFilePath, 
 	float *& data)
@@ -20,6 +20,20 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	{
 		// TODO
 		return false;
+	}
+
+	resizeParameters.sourceX = sourceWidth;
+	resizeParameters.sourceY = sourceHeight;
+	if (textureSearchParameters.resize)
+	{
+		resizeParameters.resizeX = (int)(sourceWidth * textureSearchParameters.resizePercentage);
+		resizeParameters.resizeY = (int)(sourceHeight * textureSearchParameters.resizePercentage);
+	}
+
+	else
+	{
+		resizeParameters.resizeX = sourceWidth;
+		resizeParameters.resizeY = sourceHeight;
 	}
 
 	return ProcessImage(resizeParameters, textureSearchParameters, image, data);
