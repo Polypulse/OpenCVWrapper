@@ -39,8 +39,8 @@ public:
 	MatQueueWriter(MatQueueWriter const&) = delete;
 	void operator=(MatQueueWriter const&) = delete;
 
-	void QueueMat(std::string outputPath, cv::Mat inputMat);
-	void Poll();
+	__declspec(dllexport) void QueueMat(std::string outputPath, cv::Mat inputMat);
+	__declspec(dllexport) void Poll();
 
-	void SetDefaultOutputPath (std::wstring newDefaultOutputPath);
+	__declspec(dllexport) void SetDefaultOutputPath (std::wstring newDefaultOutputPath);
 };

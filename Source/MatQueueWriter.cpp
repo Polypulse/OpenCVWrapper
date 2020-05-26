@@ -3,7 +3,7 @@
 
 #include "MatQueueWriter.h"
 
-void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
+extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
 {
 	MatQueueContainer container;
 	container.outputPath = outputPath;
@@ -12,7 +12,7 @@ void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
 	matQueue.push(container);
 }
 
-void MatQueueWriter::Poll()
+extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 {
 	static std::string defaultFileName = "DebugImage";
 	static std::string defaultExtension = "jpg";
@@ -51,7 +51,7 @@ void MatQueueWriter::Poll()
 	}
 }
 
-void MatQueueWriter::SetDefaultOutputPath(std::wstring newDefaultOutputPath)
+extern "C" __declspec(dllexport) void MatQueueWriter::SetDefaultOutputPath(std::wstring newDefaultOutputPath)
 {
 	defaultOutputPath = newDefaultOutputPath;
 }
