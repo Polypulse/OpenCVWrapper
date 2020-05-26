@@ -61,7 +61,7 @@ public:
 	__declspec(dllexport) bool ProcessImageFromFile (
 		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
-		const std::string absoluteFilePath, 
+		const std::string & absoluteFilePath, 
 		float *& data);
 
 	__declspec(dllexport) bool ProcessImageFromPixels (
@@ -89,7 +89,7 @@ private:
 
 	void WriteMatToFile(
 		cv::Mat image,
-		std::string outputPath);
+		const std::string & outputPath);
 
 	bool ProcessImage(
 		const FResizeParameters & resizeParameters,

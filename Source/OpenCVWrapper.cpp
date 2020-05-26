@@ -10,7 +10,7 @@ extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
 extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
-	const std::string absoluteFilePath, 
+	const std::string & absoluteFilePath, 
 	float *& data)
 {
 
@@ -120,7 +120,9 @@ bool OpenCVWrapper::GetImageFromFile(
 	return true;
 }
 
-void OpenCVWrapper::WriteMatToFile(cv::Mat image, std::string outputPath)
+void OpenCVWrapper::WriteMatToFile(
+	cv::Mat image,
+	const std::string & outputPath)
 {
 	GetMatQueueWriter().QueueMat(outputPath, image);
 	/*
@@ -234,7 +236,7 @@ bool OpenCVWrapper::ProcessImage(
 		0.0001
 	);
 
-	// cv::cornerSubPix(image, imageCorners, cv::Size(5, 5), cv::Size(-1, -1), cornerSubPixCriteria);
+	cv::cornerSubPix(image, imageCorners, cv::Size(5, 5), cv::Size(-1, -1), cornerSubPixCriteria);
 	/*
 	try
 	{
@@ -257,6 +259,8 @@ bool OpenCVWrapper::ProcessImage(
 		// cv::drawChessboardCorners(image, patternSize, imageCorners, patternFound);
 		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath);
 	}
+
+	data = reinterpret_cast<float*>(imageCorners.data());
 
 	return true;
 }
