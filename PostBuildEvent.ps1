@@ -1,7 +1,7 @@
 param([string]$projectdir,
-     [string]$outputpath,
-     [string]$configuration,
-     [string]$name);
+      [string]$outputpath,
+      [string]$configuration,
+      [string]$name);
 
 $targetpath = [IO.File]::ReadAllText(".\PostBuildTargetPath.txt")
 echo "Copying from: $outputpath to: $targetpath"
