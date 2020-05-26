@@ -143,8 +143,7 @@
       <AdditionalDependencies>ade.lib;IlmImfd.lib;ippicvmt.lib;ippiwd.lib;ittnotifyd.lib;libjasperd.lib;libjpeg-turbod.lib;libpngd.lib;libprotobufd.lib;libtiffd.lib;libwebpd.lib;opencv_calib3d430d.lib;opencv_core430d.lib;opencv_dnn430d.lib;opencv_features2d430d.lib;opencv_flann430d.lib;opencv_gapi430d.lib;opencv_highgui430d.lib;opencv_imgcodecs430d.lib;opencv_imgproc430d.lib;opencv_ml430d.lib;opencv_objdetect430d.lib;opencv_photo430d.lib;opencv_stitching430d.lib;opencv_video430d.lib;opencv_videoio430d.lib;quircd.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>PowerShell -NoProfile -ExecutionPolicy unrestricted -file $(ProjectDir)PostBuildEvent.ps1 -projectdir $(ProjectDir) -outputpath $(OutputPath) -configuration $(Configuration) -name $(TargetName)</Command>
     </PostBuildEvent>
     <Lib>
       <AdditionalDependencies>ade.lib;IlmImfd.lib;ippicvmt.lib;ippiwd.lib;ittnotifyd.lib;libjasperd.lib;libjpeg-turbod.lib;libpngd.lib;libprotobufd.lib;libtiffd.lib;libwebpd.lib;opencv_calib3d430d.lib;opencv_core430d.lib;opencv_dnn430d.lib;opencv_features2d430d.lib;opencv_flann430d.lib;opencv_gapi430d.lib;opencv_highgui430d.lib;opencv_imgcodecs430d.lib;opencv_imgproc430d.lib;opencv_ml430d.lib;opencv_objdetect430d.lib;opencv_photo430d.lib;opencv_stitching430d.lib;opencv_video430d.lib;opencv_videoio430d.lib;quircd.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -168,8 +167,7 @@
       <AdditionalDependencies>ade.lib;IlmImf.lib;ippicvmt.lib;ippiw.lib;ittnotify.lib;libjasper.lib;libjpeg-turbo.lib;libpng.lib;libprotobuf.lib;libtiff.lib;libwebp.lib;opencv_calib3d430.lib;opencv_core430.lib;opencv_dnn430.lib;opencv_features2d430.lib;opencv_flann430.lib;opencv_gapi430.lib;opencv_highgui430.lib;opencv_imgcodecs430.lib;opencv_imgproc430.lib;opencv_ml430.lib;opencv_objdetect430.lib;opencv_photo430.lib;opencv_stitching430.lib;opencv_video430.lib;opencv_videoio430.lib;quirc.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>PowerShell -NoProfile -ExecutionPolicy unrestricted -file $(ProjectDir)PostBuildEvent.ps1 -projectdir $(ProjectDir) -outputpath $(OutputPath) -configuration $(Configuration) -name $(TargetName)</Command>
     </PostBuildEvent>
     <Lib>
       <SubSystem>
