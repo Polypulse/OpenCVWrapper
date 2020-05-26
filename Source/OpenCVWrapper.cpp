@@ -1,6 +1,12 @@
 #include "OpenCVWrapper.h"
 #include "MatQueueWriter.h"
 
+extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
+{
+	static OpenCVWrapper instance;
+	return instance;
+}
+
 extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	const FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
@@ -102,7 +108,7 @@ bool OpenCVWrapper::GetImageFromFile(
 
 void OpenCVWrapper::WriteMatToFile(cv::Mat image, std::string outputPath)
 {
-	MatQueueWriter::Get().QueueMat(outputPath, image);
+	GetMatQueueWriter().QueueMat(outputPath, image);
 	/*
 	if (Debug())
 		QueueLog(FString::Printf(TEXT("(INFO): Queued texture: \'%s\" to be written to file."), *outputPath));

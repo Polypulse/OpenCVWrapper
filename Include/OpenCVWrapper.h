@@ -98,8 +98,4 @@ private:
 		float *& data);
 };
 
-extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
-{
-	static OpenCVWrapper instance;
-	return instance;
-}
+extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper();

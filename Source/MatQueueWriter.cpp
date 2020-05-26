@@ -3,6 +3,12 @@
 
 #include "MatQueueWriter.h"
 
+extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
+{
+	static MatQueueWriter instance;
+	return instance;
+}
+
 extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
 {
 	MatQueueContainer container;
@@ -14,9 +20,6 @@ extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(std::string outpu
 
 extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 {
-	static std::string defaultFileName = "DebugImage";
-	static std::string defaultExtension = "jpg";
-
 	bool isQueued = matQueue.empty() == false;
 	while (isQueued)
 	{

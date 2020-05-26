@@ -21,21 +21,13 @@ struct MatQueueContainer
 
 class MatQueueWriter
 {
-public:
-	static MatQueueWriter & Get()
-	{
-		static MatQueueWriter instance;
-		return instance;
-	}
-
-
 private:
 	std::queue<MatQueueContainer> matQueue;
-	MatQueueWriter() {}
 
 	std::wstring defaultOutputPath;
 
 public:
+	MatQueueWriter() {}
 	MatQueueWriter(MatQueueWriter const&) = delete;
 	void operator=(MatQueueWriter const&) = delete;
 
@@ -44,3 +36,5 @@ public:
 
 	__declspec(dllexport) void SetDefaultOutputPath (std::wstring newDefaultOutputPath);
 };
+
+extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter();
