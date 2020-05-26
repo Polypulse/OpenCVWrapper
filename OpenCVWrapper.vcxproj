@@ -178,9 +178,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Include\MatQueueWriter.h" />
     <ClInclude Include="Include\OpenCVWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\MatQueueWriter.cpp" />
     <ClCompile Include="Source\OpenCVWrapper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
