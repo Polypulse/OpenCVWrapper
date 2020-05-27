@@ -140,7 +140,7 @@ public:
 		const FResizeParameters & resizeParameters,
 		const FCalibrateLensParameters & calibrationParameters,
 		const float * cornersData,
-		const float * objectPointsData,
+		const float chessboardSquareSizeMM,
 		const int cornerCountX,
 		const int cornerCountY,
 		const int imageCount,

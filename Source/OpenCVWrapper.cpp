@@ -63,7 +63,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	const FResizeParameters & resizeParameters,
 	const FCalibrateLensParameters & calibrationParameters,
 	const float * cornersData,
-	const float * objectPointsData,
+	const float chessboardSquareSizeMM,
 	const int cornerCountX,
 	const int cornerCountY,
 	const int imageCount,
@@ -73,6 +73,16 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	std::vector<std::vector<cv::Point2f>> corners = std::vector<std::vector<cv::Point2f>>(imageCount, std::vector<cv::Point2f>(cornerCount));
 	std::vector<std::vector<cv::Point3f>> objectPoints = std::vector<std::vector<cv::Point3f>>(imageCount, std::vector<cv::Point3f>(cornerCount));
 
+	/*
+	int i = 0;
+	for (int y = 0; y < textureSearchParameters.checkerBoardCornerCountY; y++)
+		for (int x = 0; x < textureSearchParameters.checkerBoardCornerCountX; x++)
+			objectPoints[i++] = FVector(
+				x * textureSearchParameters.checkerBoardSquareSizeMM,
+				y * textureSearchParameters.checkerBoardSquareSizeMM,
+				0.0f);
+	*/
+
 	for (int i = 0; i < imageCount; i++)
 	{
 		for (int ci = 0; ci < cornerCount; ci++)
@@ -80,9 +90,9 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 			corners[i][ci].x = *(cornersData + (i * cornerCount) + ci * 2);
 			corners[i][ci].y = *(cornersData + (i * cornerCount) + ci * 2 + 1);
 
-			objectPoints[i][ci].x = *(cornersData + (i * cornerCount) + ci * 3);
-			objectPoints[i][ci].y = *(cornersData + (i * cornerCount) + ci * 3 + 1);
-			objectPoints[i][ci].z = *(cornersData + (i * cornerCount) + ci * 3 + 2);
+			objectPoints[i][ci] = cv::Point3f(
+				(ci / (float)cornerCountX) * chessboardSquareSizeMM, 
+				std::fmodf((float)ci, (float)cornerCountY) * chessboardSquareSizeMM, 0.0f);
 		}
 	}
 
