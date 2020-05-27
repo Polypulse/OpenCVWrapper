@@ -51,7 +51,7 @@ struct FChessboardSearchParameters
 	}
 };
 
-struct FCalibrationParameters
+struct FCalibrateLensParameters
 {
 	float sensorDiagonalSizeMM;
 	float initialPrincipalPointNativePixelPositionX, initialPrincipalPointNativePixelPositionY;
@@ -66,10 +66,7 @@ struct FCalibrationParameters
 	bool fixRadialDistortionCoefficientK5;
 	bool fixRadialDistortionCoefficientK6;
 
-	bool writeCalibrationResultsToFile;
-	std::string calibrationResultsOutputPath;
-
-	FCalibrationParameters()
+	FCalibrateLensParameters()
 	{
 		sensorDiagonalSizeMM = 9.960784f;
 		initialPrincipalPointNativePixelPositionX = 0.0f;
@@ -85,14 +82,12 @@ struct FCalibrationParameters
 		fixRadialDistortionCoefficientK4 = false;
 		fixRadialDistortionCoefficientK5 = false;
 		fixRadialDistortionCoefficientK6 = false;
-
-		writeCalibrationResultsToFile = false;
-		calibrationResultsOutputPath = "";
 	}
 };
 
 struct FCalibrateLensOutput
 {
+	float error;
 	float fovX;
 	float fovY;
 	float focalLengthMM;
@@ -104,6 +99,7 @@ struct FCalibrateLensOutput
 
 	FCalibrateLensOutput()
 	{
+		error = 0.0f;
 		fovX = 0.0f;
 		fovY = 0.0f;
 		focalLengthMM = 0.0f;
@@ -142,7 +138,7 @@ public:
 
 	__declspec(dllexport) bool CalibrateLens (
 		const FResizeParameters & resizeParameters,
-		const FCalibrationParameters & calibrationParameters,
+		const FCalibrateLensParameters & calibrationParameters,
 		const float * cornersData,
 		const float * objectPointsData,
 		const int cornerCountX,

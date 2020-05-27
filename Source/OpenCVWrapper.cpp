@@ -61,7 +61,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
 
 extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	const FResizeParameters & resizeParameters,
-	const FCalibrationParameters & calibrationParameters,
+	const FCalibrateLensParameters & calibrationParameters,
 	const float * cornersData,
 	const float * objectPointsData,
 	const int cornerCountX,
@@ -155,8 +155,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	// QueueLog("(INFO): Calibrating...");
 
-	double error = 0.0;
-	error = cv::calibrateCamera(
+	output.error = (float)cv::calibrateCamera(
 		objectPoints,
 		corners,
 		sourceImageSize,
