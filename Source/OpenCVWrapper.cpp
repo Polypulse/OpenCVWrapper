@@ -1,6 +1,7 @@
 #include "OpenCVWrapper.h"
 #include "MatQueueWriter.h"
 #include <cmath>
+#include <random>
 
 extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
 {
@@ -69,9 +70,9 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	const int imageCount,
 	FCalibrateLensOutput & output)
 {
-	int cornerCount = cornerCountX * cornerCountY;
-	std::vector<std::vector<cv::Point2f>> corners = std::vector<std::vector<cv::Point2f>>(imageCount, std::vector<cv::Point2f>(cornerCount));
-	std::vector<std::vector<cv::Point3f>> objectPoints = std::vector<std::vector<cv::Point3f>>(imageCount, std::vector<cv::Point3f>(cornerCount));
+	const int cornerCount = cornerCountX * cornerCountY;
+	std::vector<std::vector<cv::Point2f>> corners(imageCount, std::vector<cv::Point2f>(cornerCount));
+	std::vector<std::vector<cv::Point3f>> objectPoints(imageCount, std::vector<cv::Point3f>(cornerCount));
 
 	/*
 	int i = 0;
@@ -96,7 +97,10 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 		}
 	}
 
-	std::random_shuffle(std::begin(corners), std::end(corners));
+	std::random_device rd;
+    std::mt19937 g(rd());
+
+	std::shuffle(std::begin(corners), std::end(corners), g);
 
 	/*
 	if (Debug())
