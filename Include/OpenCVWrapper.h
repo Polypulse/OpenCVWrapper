@@ -51,6 +51,73 @@ struct FChessboardSearchParameters
 	}
 };
 
+struct FCalibrationParameters
+{
+	float sensorDiagonalSizeMM;
+	float initialPrincipalPointNativePixelPositionX, initialPrincipalPointNativePixelPositionY;
+	bool useInitialIntrinsicValues;
+	bool keepPrincipalPixelPositionFixed;
+	bool keepAspectRatioFixed;
+	bool lensHasTangentalDistortion;
+	bool fixRadialDistortionCoefficientK1;
+	bool fixRadialDistortionCoefficientK2;
+	bool fixRadialDistortionCoefficientK3;
+	bool fixRadialDistortionCoefficientK4;
+	bool fixRadialDistortionCoefficientK5;
+	bool fixRadialDistortionCoefficientK6;
+
+	bool writeCalibrationResultsToFile;
+	std::string calibrationResultsOutputPath;
+
+	FCalibrationParameters()
+	{
+		sensorDiagonalSizeMM = 9.960784f;
+		initialPrincipalPointNativePixelPositionX = 0.0f;
+		initialPrincipalPointNativePixelPositionY = 0.0f;
+
+		useInitialIntrinsicValues = false;
+		keepPrincipalPixelPositionFixed = false;
+		keepAspectRatioFixed = true;
+		lensHasTangentalDistortion = false;
+		fixRadialDistortionCoefficientK1 = false;
+		fixRadialDistortionCoefficientK2 = false;
+		fixRadialDistortionCoefficientK3 = false;
+		fixRadialDistortionCoefficientK4 = false;
+		fixRadialDistortionCoefficientK5 = false;
+		fixRadialDistortionCoefficientK6 = false;
+
+		writeCalibrationResultsToFile = false;
+		calibrationResultsOutputPath = "";
+	}
+};
+
+struct FCalibrateLensOutput
+{
+	float fovX;
+	float fovY;
+	float focalLengthMM;
+	float aspectRatio;
+	float sensorSizeMMX, sensorSizeMMY;
+	float principalPixelPointX, principalPixelPointY;
+	int resolutionX, resolutionY;
+	float k1, k2, p1, p2, k3;
+
+	FCalibrateLensOutput()
+	{
+		fovX = 0.0f;
+		fovY = 0.0f;
+		focalLengthMM = 0.0f;
+		aspectRatio = 0.0f;
+		sensorSizeMMX = 0.0f;
+		sensorSizeMMY = 0.0f;
+		principalPixelPointX = 0.0f;
+		principalPixelPointY = 0.0f;
+		resolutionX = 0;
+		resolutionY = 0;
+		k1 = 0; k2 = 0; p1 = 0; p2 = 0; k3 = 0;
+	}
+};
+
 class OpenCVWrapper
 {
 public:
@@ -72,6 +139,16 @@ public:
 		const int width,
 		const int height, 
 		float *& data);
+
+	__declspec(dllexport) bool CalibrateLens (
+		const FResizeParameters & resizeParameters,
+		const FCalibrationParameters & calibrationParameters,
+		const float * cornersData,
+		const float * objectPointsData,
+		const int cornerCountX,
+		const int cornerCountY,
+		const int imageCount,
+		FCalibrateLensOutput & output);
 
 private:
 	bool GetImageFromArray(
