@@ -12,13 +12,14 @@ extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper()
 extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
-	const std::string & absoluteFilePath, 
-	double *& data)
+	const char absoluteFilePath[260], 
+	float *& data)
 {
 
 	int sourceWidth, sourceHeight;
 	cv::Mat image;
-	if (!GetImageFromFile(absoluteFilePath, image, sourceWidth, sourceHeight))
+	std::string filePath(absoluteFilePath);
+	if (!GetImageFromFile(filePath, image, sourceWidth, sourceHeight))
 	{
 		// TODO
 		return false;
@@ -48,7 +49,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
 	const int stride,
 	const int width,
 	const int height, 
-	double *& data)
+	float *& data)
 {
 	cv::Mat image;
 	if (!GetImageFromArray(pixels, stride, width, height, image))
@@ -63,7 +64,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
 extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	const FResizeParameters & resizeParameters,
 	const FCalibrateLensParameters & calibrationParameters,
-	const double * cornersData,
+	const float * cornersData,
 	const float chessboardSquareSizeMM,
 	const int cornerCountX,
 	const int cornerCountY,
@@ -71,8 +72,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	FCalibrateLensOutput & output)
 {
 	const int cornerCount = cornerCountX * cornerCountY;
-	std::vector<std::vector<cv::Point2d>> corners(imageCount, std::vector<cv::Point2d>(cornerCount));
-	std::vector<std::vector<cv::Point3d>> objectPoints(imageCount, std::vector<cv::Point3d>(cornerCount));
+	std::vector<std::vector<cv::Point2f>> corners(imageCount, std::vector<cv::Point2f>(cornerCount));
+	std::vector<std::vector<cv::Point3f>> objectPoints(imageCount, std::vector<cv::Point3f>(cornerCount));
 
 	/*
 	int i = 0;
@@ -318,7 +319,7 @@ bool OpenCVWrapper::ProcessImage(
 	const FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	cv::Mat image,
-	double *& data)
+	float *& data)
 {
 	float resizePercentage = textureSearchParameters.resizePercentage;
 	bool resize = textureSearchParameters.resize;
@@ -382,7 +383,7 @@ bool OpenCVWrapper::ProcessImage(
 
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
 
-	std::vector<cv::Point2d> imageCorners;
+	std::vector<cv::Point2f> imageCorners;
 
 	cv::Size patternSize(
 		textureSearchParameters.checkerBoardCornerCountX,
@@ -443,7 +444,7 @@ bool OpenCVWrapper::ProcessImage(
 		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath);
 	}
 
-	data = reinterpret_cast<double*>(imageCorners.data());
+	data = reinterpret_cast<float*>(imageCorners.data());
 
 	return true;
 }

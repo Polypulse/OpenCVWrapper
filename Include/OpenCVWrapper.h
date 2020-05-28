@@ -35,7 +35,8 @@ struct FChessboardSearchParameters
 	float checkerBoardSquareSizeMM;
 	int checkerBoardCornerCountX, checkerBoardCornerCountY;
 	bool writeDebugTextureToFile;
-	std::string debugTextureOutputPath;
+	char debugTextureOutputPath[260];
+
 
 	FChessboardSearchParameters()
 	{
@@ -47,7 +48,7 @@ struct FChessboardSearchParameters
 		checkerBoardSquareSizeMM = 12.7f;
 		checkerBoardCornerCountX = 0; checkerBoardCornerCountY = 0;
 		writeDebugTextureToFile = false;
-		debugTextureOutputPath = "";
+		memset(debugTextureOutputPath, 0, sizeof(char) * 260);
 	}
 };
 
@@ -124,8 +125,8 @@ public:
 	__declspec(dllexport) bool ProcessImageFromFile (
 		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
-		const std::string & absoluteFilePath, 
-		double *& data);
+		const char absoluteFilePath[260], 
+		float *& data);
 
 	__declspec(dllexport) bool ProcessImageFromPixels (
 		const FResizeParameters & resizeParameters,
@@ -134,12 +135,12 @@ public:
 		const int stride,
 		const int width,
 		const int height, 
-		double *& data);
+		float *& data);
 
 	__declspec(dllexport) bool CalibrateLens (
 		const FResizeParameters & resizeParameters,
 		const FCalibrateLensParameters & calibrationParameters,
-		const double * cornersData,
+		const float * cornersData,
 		const float chessboardSquareSizeMM,
 		const int cornerCountX,
 		const int cornerCountY,
@@ -168,7 +169,7 @@ private:
 		const FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		cv::Mat image,
-		double *& data);
+		float *& data);
 };
 
 extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper();
