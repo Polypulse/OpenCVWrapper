@@ -16,8 +16,7 @@
 
 struct MatQueueContainer
 {
-	std::string outputPath;
-	std::string fileName;
+	std::string folderPath;
 	cv::Mat mat;
 };
 
@@ -39,7 +38,7 @@ public:
 	__declspec(dllexport) void SetDefaultOutputPath (std::wstring newDefaultOutputPath);
 
 private:
-	void ValidateFilePath(std::string & folderPath, std::string& fileName, std::string& outputPath);
+	// void ValidateFilePath(std::string & folderPath, std::string& fileName, std::string& outputPath);
 };
 
 extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter();

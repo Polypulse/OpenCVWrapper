@@ -3,8 +3,8 @@
 
 #include "MatQueueWriter.h"
 #include <cstdlib>
-#include <filesystem>
-#include <vector>
+// #include <filesystem>
+// #include <vector>
 
 extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 {
@@ -15,7 +15,7 @@ extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
 {
 	MatQueueContainer container;
-	container.outputPath = outputPath;
+	container.folderPath = outputPath;
 	container.mat = inputMat;
 
 	matQueue.push(container);
@@ -30,11 +30,8 @@ extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 		container = matQueue.front();
 		matQueue.pop();
 
-		std::string folderPath = container.outputPath;
-		std::string fileName = container.fileName;
-
-		std::string outputPath;
-		ValidateFilePath(folderPath, fileName, outputPath);
+		std::string folderPath = container.folderPath;
+		std::string outputPath = folderPath + "/corner-visualization.jpg";
 
 	/*
 	if (filePath.IsEmpty() || !FPaths::ValidatePath(filePath))
@@ -114,6 +111,7 @@ extern "C" __declspec(dllexport) void MatQueueWriter::SetDefaultOutputPath(std::
 	defaultOutputPath = newDefaultOutputPath;
 }
 
+/*
 void MatQueueWriter::ValidateFilePath(std::string & folderPath, std::string& fileName, std::string& outputPath)
 {
 	std::string targetExtension = ".jpg";
@@ -163,4 +161,4 @@ void MatQueueWriter::ValidateFilePath(std::string & folderPath, std::string& fil
 
 	outputPath = parentPath + "/" + outputFilename;
 }
-
+*/

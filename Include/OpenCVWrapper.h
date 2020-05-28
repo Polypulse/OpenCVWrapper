@@ -125,7 +125,7 @@ public:
 		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		const std::string & absoluteFilePath, 
-		float *& data);
+		double *& data);
 
 	__declspec(dllexport) bool ProcessImageFromPixels (
 		const FResizeParameters & resizeParameters,
@@ -134,12 +134,12 @@ public:
 		const int stride,
 		const int width,
 		const int height, 
-		float *& data);
+		double *& data);
 
 	__declspec(dllexport) bool CalibrateLens (
 		const FResizeParameters & resizeParameters,
 		const FCalibrateLensParameters & calibrationParameters,
-		const float * cornersData,
+		const double * cornersData,
 		const float chessboardSquareSizeMM,
 		const int cornerCountX,
 		const int cornerCountY,
@@ -168,7 +168,7 @@ private:
 		const FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		cv::Mat image,
-		float *& data);
+		double *& data);
 };
 
 extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper();
