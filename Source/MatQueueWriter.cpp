@@ -5,6 +5,7 @@
 #include <cstdlib>
 // #include <filesystem>
 // #include <vector>
+#include "windows.h"
 
 extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 {
@@ -31,6 +32,15 @@ extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 		matQueue.pop();
 
 		std::string folderPath = container.folderPath;
+
+		/*
+		std::string command("mkdir ");
+		command += folderPath;
+		system(command.c_str());
+		*/
+
+		// CreateDirectory(folderPath.c_str(), NULL);
+
 		std::string outputPath = folderPath + "/corner-visualization.jpg";
 
 	/*
