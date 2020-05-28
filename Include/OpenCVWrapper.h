@@ -37,7 +37,6 @@ struct FChessboardSearchParameters
 	bool writeDebugTextureToFile;
 	char debugTextureOutputPath[260];
 
-
 	FChessboardSearchParameters()
 	{
 		nativeFullResolutionX = 0; nativeFullResolutionY = 0;
