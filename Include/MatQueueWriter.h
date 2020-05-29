@@ -4,6 +4,7 @@
 
 #include <queue>
 #include <string>
+#include <mutex>
 
 #pragma push_macro("check")
 #undef check
@@ -24,18 +25,15 @@ class MatQueueWriter
 {
 private:
 	std::queue<MatQueueContainer> matQueue;
-
-	std::wstring defaultOutputPath;
+	std::mutex queueMutex;
 
 public:
 	MatQueueWriter() {}
 	MatQueueWriter(MatQueueWriter const&) = delete;
 	void operator=(MatQueueWriter const&) = delete;
 
-	__declspec(dllexport) void QueueMat(std::string outputPath, cv::Mat inputMat);
+	__declspec(dllexport) void QueueMat(const std::string & outputPath, cv::Mat inputMat);
 	__declspec(dllexport) void Poll();
-
-	__declspec(dllexport) void SetDefaultOutputPath (std::wstring newDefaultOutputPath);
 
 private:
 	// void ValidateFilePath(std::string & folderPath, std::string& fileName, std::string& outputPath);

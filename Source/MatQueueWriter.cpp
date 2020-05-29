@@ -6,6 +6,7 @@
 // #include <filesystem>
 // #include <vector>
 #include "windows.h"
+#include "WrapperLogQueue.h"
 
 extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 {
@@ -13,13 +14,15 @@ extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 	return instance;
 }
 
-extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(std::string outputPath, cv::Mat inputMat)
+extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(const std::string & outputPath, cv::Mat inputMat)
 {
 	MatQueueContainer container;
 	container.folderPath = outputPath;
 	container.mat = inputMat;
 
+	queueMutex.lock();
 	matQueue.push(container);
+	queueMutex.unlock();
 }
 
 extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
@@ -31,94 +34,24 @@ extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 		container = matQueue.front();
 		matQueue.pop();
 
-		std::string folderPath = container.folderPath;
+		std::string outputPath = container.folderPath/* + "/corner-visualization.jpg"*/;
+		cv::Mat image = container.mat;
 
-		/*
-		std::string command("mkdir ");
-		command += folderPath;
-		system(command.c_str());
-		*/
-
-		// CreateDirectory(folderPath.c_str(), NULL);
-
-		std::string outputPath = folderPath + "/corner-visualization.jpg";
-
-	/*
-	if (filePath.IsEmpty() || !FPaths::ValidatePath(filePath))
-	{
-		FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*absoluteBackupFolderPath);
-		filePath = FPaths::Combine(absoluteBackupFolderPath, backupFileName);
-		filePath = LensSolverUtilities::GenerateIndexedFilePath(filePath, backupExtension);
-		return true;
-	}
-
-	FString folder = FPaths::GetPath(filePath);
-	if (folder.IsEmpty())
-		folder = absoluteBackupFolderPath;
-
-	if (FPaths::IsRelative(filePath))
-		filePath = FPaths::ConvertRelativePathToFull(filePath);
-
-	if (FPaths::IsDrive(filePath))
-	{
-		filePath = FPaths::Combine(filePath, backupFileName);
-		filePath = LensSolverUtilities::GenerateIndexedFilePath(filePath, backupExtension);
-		return true;
-	}
-
-	FString fileName = FPaths::GetBaseFilename(filePath);
-	FString extension = FPaths::GetExtension(filePath);
-
-	FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*folder);
-
-	if (extension.IsEmpty())
-	{
-		if (FPaths::FileExists(folder))
+		if (image.empty())
 		{
-			UE_LOG(LogTemp, Error, TEXT("Cannot create path to file: \"%s\", the folder: \"%s\" is a file."), *filePath, *folder);
-			return false;
-		}
-
-		filePath = FPaths::Combine(folder, backupFileName);
-		filePath = LensSolverUtilities::GenerateIndexedFilePath(filePath, backupExtension);
-		return true;
-	}
-
-	filePath = FPaths::Combine(folder, fileName);
-	filePath = LensSolverUtilities::GenerateIndexedFilePath(filePath, extension);
-	return true;
-	*/
-
-
-		/*
-		if (!LensSolverUtilities::ValidateFilePath(filePath, defaultMatFolder, defaultFileName, defaultExtension))
-		{
-			UE_LOG(LogTemp, Error, TEXT("Unable to write image to file: \"%s\", cannot validate path."), *filePath);
-			return;
-		}
-		*/
-
-		if (container.mat.empty())
-		{
-			// UE_LOG(LogTemp, Error, TEXT("Unable to write image to file: \"%s\", image is empty."), *filePath);
+			GetWrapperLogQueue().QueueLog("Unable to write image to file: \"" + outputPath + "\", image is empty.", 2);
 			return;
 		}
 
-		if (!cv::imwrite(outputPath, container.mat))
+		if (!cv::imwrite(outputPath, image))
 		{
-			// UE_LOG(LogTemp, Error, TEXT("Unable to write image to file: \"%s\"."), *filePath);
+			GetWrapperLogQueue().QueueLog("Unable to write image to file: \"" + outputPath + "\".", 2);
 			return;
 		}
 
-		// UE_LOG(LogTemp, Log, TEXT("Wrote image to file: \"%s\"."), *filePath);
-
+		GetWrapperLogQueue().QueueLog("Successfully wrote image to file: \"" + outputPath + "\".", 0);
 		isQueued = matQueue.empty() == false;
 	}
-}
-
-extern "C" __declspec(dllexport) void MatQueueWriter::SetDefaultOutputPath(std::wstring newDefaultOutputPath)
-{
-	defaultOutputPath = newDefaultOutputPath;
 }
 
 /*
