@@ -17,8 +17,12 @@ extern "C" __declspec(dllexport) bool WrapperLogQueue::LogIsQueued()
 
 extern "C" __declspec(dllexport) int WrapperLogQueue::PeekNextSize()
 {
+	int size;
+	queueMutex.lock();
 	const WrapperLogContainer * logContainer = &logQueue.front();
-	return sizeof(char) * static_cast<int>(logContainer->message.size());
+	size = sizeof(char) * static_cast<int>(logContainer->message.size());
+	queueMutex.unlock();
+	return size;
 }
 
 extern "C" __declspec(dllexport) int WrapperLogQueue::DequeueLog(char* buffer, int & messageType)
@@ -29,6 +33,7 @@ extern "C" __declspec(dllexport) int WrapperLogQueue::DequeueLog(char* buffer, i
 	queueMutex.unlock();
 
 	memcpy(buffer, logContainer.message.c_str(), sizeof(char) * logContainer.message.size());
+	messageType = logContainer.messageType;
 
 	return static_cast<int>(logContainer.message.size());
 }
