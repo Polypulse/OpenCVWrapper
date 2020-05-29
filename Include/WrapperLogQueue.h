@@ -18,14 +18,10 @@ public:
 	WrapperLogQueue(WrapperLogQueue const&) = delete;
 	void operator=(WrapperLogQueue const&) = delete;
 
-	bool LogIsQueued ();
-	int PeekNextSize ();
-	int DequeueLog (char * buffer, int & messageType);
-	void QueueLog (std::string message, int messageType);
+	__declspec(dllexport) bool LogIsQueued ();
+	__declspec(dllexport) int PeekNextSize ();
+	__declspec(dllexport) int DequeueLog (char * buffer, int & messageType);
+	__declspec(dllexport) void QueueLog (std::string message, int messageType);
 };
 
-extern "C" __declspec(dllexport) WrapperLogQueue & GetWrapperLogQueue ()
-{
-	static WrapperLogQueue instance;
-	return instance;
-}
+extern "C" __declspec(dllexport) WrapperLogQueue & GetWrapperLogQueue ();

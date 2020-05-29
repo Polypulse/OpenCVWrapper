@@ -178,12 +178,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Include\WrapperLogQueue.h" />
     <ClInclude Include="Include\MatQueueWriter.h" />
     <ClInclude Include="Include\OpenCVWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MatQueueWriter.cpp" />
     <ClCompile Include="Source\OpenCVWrapper.cpp" />
+    <ClCompile Include="Source\WrapperLogQueue.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,12 +21,18 @@
     <ClInclude Include="Include\MatQueueWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\WrapperLogQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\OpenCVWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\MatQueueWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WrapperLogQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

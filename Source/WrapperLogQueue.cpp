@@ -1,6 +1,12 @@
 #include "WrapperLogQueue.h"
 
-bool WrapperLogQueue::LogIsQueued()
+extern "C" __declspec(dllexport) WrapperLogQueue & GetWrapperLogQueue ()
+{
+	static WrapperLogQueue instance;
+	return instance;
+}
+
+extern "C" __declspec(dllexport) bool WrapperLogQueue::LogIsQueued()
 {
 	bool isQueued;
 	queueMutex.lock();
@@ -9,13 +15,13 @@ bool WrapperLogQueue::LogIsQueued()
 	return isQueued;
 }
 
-int WrapperLogQueue::PeekNextSize()
+extern "C" __declspec(dllexport) int WrapperLogQueue::PeekNextSize()
 {
 	const WrapperLogContainer * logContainer = &logQueue.front();
-	return sizeof(char) * logContainer->message.size();
+	return sizeof(char) * static_cast<int>(logContainer->message.size());
 }
 
-int WrapperLogQueue::DequeueLog(char* buffer, int & messageType)
+extern "C" __declspec(dllexport) int WrapperLogQueue::DequeueLog(char* buffer, int & messageType)
 {
 	queueMutex.lock();
 	const WrapperLogContainer logContainer = logQueue.front();
@@ -24,10 +30,10 @@ int WrapperLogQueue::DequeueLog(char* buffer, int & messageType)
 
 	memcpy(buffer, logContainer.message.c_str(), sizeof(char) * logContainer.message.size());
 
-	return logContainer.message.size();
+	return static_cast<int>(logContainer.message.size());
 }
 
-void WrapperLogQueue::QueueLog(std::string message, int messageType)
+extern "C" __declspec(dllexport) void WrapperLogQueue::QueueLog(std::string message, int messageType)
 {
 	WrapperLogContainer logContainer;
 	logContainer.message = message;
