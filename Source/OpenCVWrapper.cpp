@@ -90,8 +90,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 			corners[i][ci].y = *(cornersData + (i * cornerCount) + ci * 2 + 1) * inverseResizeRatio;
 
 			objectPoints[i][ci] = cv::Point3d(
-				(ci / (double)cornerCountX) * chessboardSquareSizeMM, 
-				std::fmod((double)ci, (double)cornerCountY) * chessboardSquareSizeMM, 0.0);
+				chessboardSquareSizeMM * (ci % cornerCountX), 
+				chessboardSquareSizeMM * (ci / cornerCountX), 0.0);
 		}
 	}
 
