@@ -172,9 +172,9 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	cv::calibrationMatrixValues(cameraMatrix, imageSize, sensorWidth, sensorHeight, fovX, fovY, focalLength, principalPoint, aspectRatio);
 
-	fovX *= inverseResizeRatio;
-	fovY *= inverseResizeRatio;
-	focalLength *= inverseResizeRatio;
+	// fovX *= inverseResizeRatio;
+	// fovY *= inverseResizeRatio;
+	// focalLength *= inverseResizeRatio;
 
 	principalPoint.x = sourcePixelWidth * (principalPoint.x / sensorWidth);
 	principalPoint.y = sourcePixelHeight * (principalPoint.y / sensorHeight);
