@@ -107,7 +107,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	cv::Mat cameraMatrix = cv::Mat::eye(3, 3, cv::DataType<double>::type);
 	cv::Mat distortionCoefficients = cv::Mat::zeros(8, 1, cv::DataType<double>::type);
 	cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
-	cv::Point2d principalPoint = cv::Point2d(0.0, 0.0);
+	cv::Point2d principalPoint = cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY);
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
 
 	int sourcePixelWidth = resizeParameters.nativeX;
@@ -134,7 +134,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	flags |= calibrationParameters.fixRadialDistortionCoefficientK5		?	cv::CALIB_FIX_K5 : 0;
 	flags |= calibrationParameters.fixRadialDistortionCoefficientK6		?	cv::CALIB_FIX_K6 : 0;
 
-	if (flags & cv::CALIB_USE_INTRINSIC_GUESS)
+	if (flags & cv::CALIB_USE_INTRINSIC_GUESS || flags & cv::CALIB_FIX_PRINCIPAL_POINT)
 	{
 		cameraMatrix.at<double>(0, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionX);
 		cameraMatrix.at<double>(1, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionY);
@@ -146,13 +146,10 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	else if (flags & cv::CALIB_FIX_ASPECT_RATIO)
 	{
-		// cameraMatrix.at<double>(0, 0) = 1.0 / (resizeParameters.nativeX * 0.5);
-		// cameraMatrix.at<double>(1, 1) = 1.0 / (resizeParameters.nativeY * 0.5);
-		cameraMatrix.at<double>(0, 0) = (resizeParameters.nativeX / static_cast<double>(resizeParameters.nativeY));
-		/*
+		double aspect = resizeParameters.nativeX / static_cast<double>(resizeParameters.nativeY);
+		cameraMatrix.at<double>(0, 0) = aspect;
 		if (debug)
-			GetWrapperLogQueue().QueueLog("Keeping aspect ratio at: " + std::to_string(resizeParameters.nativeX / (double)resizeParameters.nativeY), 0);
-		*/
+			GetWrapperLogQueue().QueueLog("Fixing aspect ratio at: " + std::to_string(aspect), 0);
 	}
 
 	GetWrapperLogQueue().QueueLog("Calibrating...", 0);
