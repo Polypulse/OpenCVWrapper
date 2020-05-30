@@ -86,8 +86,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	{
 		for (int ci = 0; ci < cornerCount; ci++)
 		{
-			corners[i][ci].x = *(cornersData + (i * cornerCount) + ci * 2) * inverseResizeRatio;
-			corners[i][ci].y = *(cornersData + (i * cornerCount) + ci * 2 + 1) * inverseResizeRatio;
+			corners[i][ci].x = *(cornersData + (i * cornerCount) * 2 + ci * 2)/* * inverseResizeRatio*/;
+			corners[i][ci].y = *(cornersData + (i * cornerCount) * 2 + ci * 2 + 1)/* * inverseResizeRatio*/;
 
 			objectPoints[i][ci] = cv::Point3d(
 				chessboardSquareSizeMM * (ci % cornerCountX), 
@@ -95,18 +95,18 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 		}
 	}
 
-	std::random_device rd;
-    std::mt19937 g(rd());
+	// std::random_device rd;
+    // std::mt19937 g(rd());
 
-	std::shuffle(std::begin(corners), std::end(corners), g);
+	// std::shuffle(std::begin(corners), std::end(corners), g);
 
 	if (debug)
 		GetWrapperLogQueue().QueueLog("Done dequeuing work units, preparing calibration using " + std::to_string(corners.size()) + " sets of points.", 0);
 
 	std::vector<cv::Mat> rvecs, tvecs;
 	cv::Mat cameraMatrix = cv::Mat::eye(3, 3, cv::DataType<double>::type);
-	cv::Mat distortionCoefficients = cv::Mat::zeros(5, 1, cv::DataType<double>::type);
-	cv::Size sourceImageSize(resizeParameters.nativeX, resizeParameters.nativeY);
+	cv::Mat distortionCoefficients = cv::Mat::zeros(8, 1, cv::DataType<double>::type);
+	cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
 	cv::Point2d principalPoint = cv::Point2d(0.0, 0.0);
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
 
@@ -146,10 +146,13 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	else if (flags & cv::CALIB_FIX_ASPECT_RATIO)
 	{
-		cameraMatrix.at<double>(0, 0) = 1.0 / (resizeParameters.nativeX * 0.5);
-		cameraMatrix.at<double>(1, 1) = 1.0 / (resizeParameters.nativeY * 0.5);
+		// cameraMatrix.at<double>(0, 0) = 1.0 / (resizeParameters.nativeX * 0.5);
+		// cameraMatrix.at<double>(1, 1) = 1.0 / (resizeParameters.nativeY * 0.5);
+		cameraMatrix.at<double>(0, 0) = (resizeParameters.nativeX / static_cast<double>(resizeParameters.nativeY));
+		/*
 		if (debug)
 			GetWrapperLogQueue().QueueLog("Keeping aspect ratio at: " + std::to_string(resizeParameters.nativeX / (double)resizeParameters.nativeY), 0);
+		*/
 	}
 
 	GetWrapperLogQueue().QueueLog("Calibrating...", 0);
@@ -157,7 +160,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	output.error = (float)cv::calibrateCamera(
 		objectPoints,
 		corners,
-		sourceImageSize,
+		imageSize,
 		cameraMatrix,
 		distortionCoefficients,
 		rvecs,
@@ -167,11 +170,11 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	GetWrapperLogQueue().QueueLog("Finished calibration.", 0);
 
-	cv::calibrationMatrixValues(cameraMatrix, sourceImageSize, sensorWidth, sensorHeight, fovX, fovY, focalLength, principalPoint, aspectRatio);
+	cv::calibrationMatrixValues(cameraMatrix, imageSize, sensorWidth, sensorHeight, fovX, fovY, focalLength, principalPoint, aspectRatio);
 
-	fovX *= 2.0f;
-	fovY *= 2.0f;
-	focalLength *= 2.0f;
+	fovX *= inverseResizeRatio;
+	fovY *= inverseResizeRatio;
+	focalLength *= inverseResizeRatio;
 
 	principalPoint.x = sourcePixelWidth * (principalPoint.x / sensorWidth);
 	principalPoint.y = sourcePixelHeight * (principalPoint.y / sensorHeight);
