@@ -150,8 +150,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 			GetWrapperLogQueue().QueueLog("Keeping aspect ratio at: " + std::to_string(resizeParameters.nativeX / (double)resizeParameters.nativeY), 0);
 	}
 
-	if (debug)
-		GetWrapperLogQueue().QueueLog("Calibrating...", 0);
+	GetWrapperLogQueue().QueueLog("Calibrating...", 0);
 
 	output.error = (float)cv::calibrateCamera(
 		objectPoints,
@@ -163,6 +162,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 		tvecs,
 		flags,
 		termCriteria);
+
+	GetWrapperLogQueue().QueueLog("Finished calibration.", 0);
 
 	cv::calibrationMatrixValues(cameraMatrix, sourceImageSize, sensorWidth, sensorHeight, fovX, fovY, focalLength, principalPoint, aspectRatio);
 
@@ -189,8 +190,6 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	output.p2 = (float)distortionCoefficients.at<double>(3, 0);
 	output.k3 = (float)distortionCoefficients.at<double>(4, 0);
 
-	if (debug)
-		GetWrapperLogQueue().QueueLog("Finished calibration.", 0);
 
 	return true;
 }
