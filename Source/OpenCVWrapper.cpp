@@ -15,7 +15,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	const char absoluteFilePath[260], 
-	float *& data,
+	float * data,
 	const bool debug)
 {
 
@@ -52,7 +52,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
 	const int stride,
 	const int width,
 	const int height, 
-	float *& data,
+	float * data,
 	const bool debug)
 {
 	cv::Mat image;
@@ -80,12 +80,14 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	std::vector<std::vector<cv::Point2f>> corners(imageCount, std::vector<cv::Point2f>(cornerCount));
 	std::vector<std::vector<cv::Point3f>> objectPoints(imageCount, std::vector<cv::Point3f>(cornerCount));
 
+	float inverseResizeRatio = resizeParameters.nativeX / (float)resizeParameters.resizeX;
+
 	for (int i = 0; i < imageCount; i++)
 	{
 		for (int ci = 0; ci < cornerCount; ci++)
 		{
-			corners[i][ci].x = *(cornersData + (i * cornerCount) + ci * 2);
-			corners[i][ci].y = *(cornersData + (i * cornerCount) + ci * 2 + 1);
+			corners[i][ci].x = *(cornersData + (i * cornerCount) + ci * 2) * inverseResizeRatio;
+			corners[i][ci].y = *(cornersData + (i * cornerCount) + ci * 2 + 1) * inverseResizeRatio;
 
 			objectPoints[i][ci] = cv::Point3d(
 				(ci / (double)cornerCountX) * chessboardSquareSizeMM, 
@@ -263,7 +265,7 @@ bool OpenCVWrapper::ProcessImage(
 	const FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	cv::Mat image,
-	float *& data,
+	float * data,
 	const bool debug)
 {
 	float resizePercentage = textureSearchParameters.resizePercentage;
@@ -330,6 +332,7 @@ bool OpenCVWrapper::ProcessImage(
 		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath, debug);
 	}
 
-	data = reinterpret_cast<float*>(imageCorners.data());
+	// data = reinterpret_cast<float*>(imageCorners.data());
+	memcpy(data, imageCorners.data(), sizeof(float) * patternSize.width * patternSize.height * 2);
 	return true;
 }

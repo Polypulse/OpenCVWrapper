@@ -125,7 +125,7 @@ public:
 		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		const char absoluteFilePath[260], 
-		float *& data,
+		float * data,
 		const bool debug);
 
 	__declspec(dllexport) bool ProcessImageFromPixels (
@@ -135,7 +135,7 @@ public:
 		const int stride,
 		const int width,
 		const int height, 
-		float *& data,
+		float * data,
 		const bool debug);
 
 	__declspec(dllexport) bool CalibrateLens (
@@ -174,7 +174,7 @@ private:
 		const FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		cv::Mat image,
-		float *& data,
+		float * data,
 		const bool debug);
 };
 
