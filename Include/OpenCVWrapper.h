@@ -42,7 +42,7 @@ struct FChessboardSearchParameters
 		nativeFullResolutionX = 0; nativeFullResolutionY = 0;
 		resizePercentage = 0.5f;
 		resize = true;
-		bool flipX = false; flipY = false;
+		flipX = false; flipY = false;
 		exhaustiveSearch = false;
 		checkerBoardSquareSizeMM = 12.7f;
 		checkerBoardCornerCountX = 0; checkerBoardCornerCountY = 0;
@@ -125,7 +125,8 @@ public:
 		FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		const char absoluteFilePath[260], 
-		float *& data);
+		float *& data,
+		const bool debug);
 
 	__declspec(dllexport) bool ProcessImageFromPixels (
 		const FResizeParameters & resizeParameters,
@@ -134,7 +135,8 @@ public:
 		const int stride,
 		const int width,
 		const int height, 
-		float *& data);
+		float *& data,
+		const bool debug);
 
 	__declspec(dllexport) bool CalibrateLens (
 		const FResizeParameters & resizeParameters,
@@ -144,7 +146,8 @@ public:
 		const int cornerCountX,
 		const int cornerCountY,
 		const int imageCount,
-		FCalibrateLensOutput & output);
+		FCalibrateLensOutput & output,
+		const bool debug);
 
 private:
 	bool GetImageFromArray(
@@ -152,23 +155,27 @@ private:
 		const int stride,
 		const int width,
 		const int height,
-		cv::Mat& image);
+		cv::Mat& image,
+		const bool debug);
 
 	bool GetImageFromFile(
 		const std::string & absoluteFilePath,
 		cv::Mat& image,
 		int & sourceWidth,
-		int & sourceHeight);
+		int & sourceHeight,
+		const bool debug);
 
 	void WriteMatToFile(
 		cv::Mat image,
-		const std::string & outputPath);
+		const std::string & outputPath,
+		const bool debug);
 
 	bool ProcessImage(
 		const FResizeParameters & resizeParameters,
 		const FChessboardSearchParameters & textureSearchParameters,
 		cv::Mat image,
-		float *& data);
+		float *& data,
+		const bool debug);
 };
 
 extern "C" __declspec(dllexport) OpenCVWrapper & GetOpenCVWrapper();

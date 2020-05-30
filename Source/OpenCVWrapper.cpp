@@ -15,13 +15,14 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 	FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	const char absoluteFilePath[260], 
-	float *& data)
+	float *& data,
+	const bool debug)
 {
 
 	int sourceWidth, sourceHeight;
 	cv::Mat image;
 	std::string filePath(absoluteFilePath);
-	if (!GetImageFromFile(filePath, image, sourceWidth, sourceHeight))
+	if (!GetImageFromFile(filePath, image, sourceWidth, sourceHeight, debug))
 	{
 		// TODO
 		return false;
@@ -41,7 +42,7 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromFile (
 		resizeParameters.resizeY = sourceHeight;
 	}
 
-	return ProcessImage(resizeParameters, textureSearchParameters, image, data);
+	return ProcessImage(resizeParameters, textureSearchParameters, image, data, debug);
 }
 
 extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
@@ -51,16 +52,17 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::ProcessImageFromPixels (
 	const int stride,
 	const int width,
 	const int height, 
-	float *& data)
+	float *& data,
+	const bool debug)
 {
 	cv::Mat image;
-	if (!GetImageFromArray(pixels, stride, width, height, image))
+	if (!GetImageFromArray(pixels, stride, width, height, image, debug))
 	{
 		// TODO
 		return false;
 	}
 
-	return ProcessImage(resizeParameters, textureSearchParameters, image, data);
+	return ProcessImage(resizeParameters, textureSearchParameters, image, data, debug);
 }
 
 extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
@@ -71,7 +73,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	const int cornerCountX,
 	const int cornerCountY,
 	const int imageCount,
-	FCalibrateLensOutput & output)
+	FCalibrateLensOutput & output,
+	const bool debug)
 {
 	const int cornerCount = cornerCountX * cornerCountY;
 	std::vector<std::vector<cv::Point2f>> corners(imageCount, std::vector<cv::Point2f>(cornerCount));
@@ -95,7 +98,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	std::shuffle(std::begin(corners), std::end(corners), g);
 
-	GetWrapperLogQueue().QueueLog("Done dequeuing work units, preparing calibration using " + std::to_string(corners.size()) + " sets of points.", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Done dequeuing work units, preparing calibration using " + std::to_string(corners.size()) + " sets of points.", 0);
 
 	std::vector<cv::Mat> rvecs, tvecs;
 	cv::Mat cameraMatrix = cv::Mat::eye(3, 3, cv::DataType<double>::type);
@@ -110,7 +114,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	float sensorHeight = calibrationParameters.sensorDiagonalSizeMM / std::sqrt(std::powf(sourcePixelWidth / (float)sourcePixelHeight, 2.0f) + 1.0f);
 	float sensorWidth = sensorHeight * (sourcePixelWidth / (float)sourcePixelHeight);
 
-	GetWrapperLogQueue().QueueLog("Sensor size: (" + std::to_string(sensorWidth) + ", " + std::to_string(sensorHeight) + ") mm, diagonal: (" + std::to_string(calibrationParameters.sensorDiagonalSizeMM) + " mm.", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Sensor size: (" + std::to_string(sensorWidth) + ", " + std::to_string(sensorHeight) + ") mm, diagonal: (" + std::to_string(calibrationParameters.sensorDiagonalSizeMM) + " mm.", 0);
 
 	double fovX = 0.0f, fovY = 0.0f, focalLength = 0.0f;
 	double aspectRatio = 0.0f;
@@ -131,19 +136,22 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	{
 		cameraMatrix.at<double>(0, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionX);
 		cameraMatrix.at<double>(1, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionY);
-		GetWrapperLogQueue().QueueLog("Setting initial principal point to: (" + 
-			std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionX) + ", " +
-			std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionY) + ")", 0);
+		if (debug)
+			GetWrapperLogQueue().QueueLog("Setting initial principal point to: (" + 
+				std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionX) + ", " +
+				std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionY) + ")", 0);
 	}
 
 	else if (flags & cv::CALIB_FIX_ASPECT_RATIO)
 	{
 		cameraMatrix.at<double>(0, 0) = 1.0 / (resizeParameters.nativeX * 0.5);
 		cameraMatrix.at<double>(1, 1) = 1.0 / (resizeParameters.nativeY * 0.5);
-		GetWrapperLogQueue().QueueLog("Keeping aspect ratio at: " + std::to_string(resizeParameters.nativeX / (double)resizeParameters.nativeY), 0);
+		if (debug)
+			GetWrapperLogQueue().QueueLog("Keeping aspect ratio at: " + std::to_string(resizeParameters.nativeX / (double)resizeParameters.nativeY), 0);
 	}
 
-	GetWrapperLogQueue().QueueLog("Calibrating...", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Calibrating...", 0);
 
 	output.error = (float)cv::calibrateCamera(
 		objectPoints,
@@ -181,7 +189,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	output.p2 = (float)distortionCoefficients.at<double>(3, 0);
 	output.k3 = (float)distortionCoefficients.at<double>(4, 0);
 
-	GetWrapperLogQueue().QueueLog("Finished calibration.", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Finished calibration.", 0);
 
 	return true;
 }
@@ -191,16 +200,20 @@ bool OpenCVWrapper::GetImageFromArray(
 	int stride,
 	int width,
 	int height,
-	cv::Mat& image)
+	cv::Mat& image,
+	const bool debug)
 {
-	GetWrapperLogQueue().QueueLog("Copying pixel data of pixel count: " + std::to_string(width * height) + " to image of size: (" + std::to_string(width) + ", " + std::to_string(height) + ").", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Copying pixel data of pixel count: " + std::to_string(width * height) + " to image of size: (" + std::to_string(width) + ", " + std::to_string(height) + ").", 0);
+
 	image = cv::Mat(width, height, cv::DataType<uint8_t>::type);
 
 	int pixelCount = width * height;
 	for (int pi = 0; pi < pixelCount; pi++)
 		image.at<uint8_t>(pi / width, pi % height) = *(pixels + pi);
 
-	GetWrapperLogQueue().QueueLog("Done copying pixel data.", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Done copying pixel data.", 0);
 
 	return true;
 }
@@ -209,12 +222,15 @@ bool OpenCVWrapper::GetImageFromFile(
 	const std::string & absoluteFilePath,
 	cv::Mat& image,
 	int & sourceWidth,
-	int & sourceHeight)
+	int & sourceHeight,
+	const bool debug)
 {
 	std::string str(absoluteFilePath);
 	std::replace(str.begin(), str.end(), '\\', '/');
 
-	GetWrapperLogQueue().QueueLog("Attempting to read image from path: \"" + str + "\".", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Attempting to read image from path: \"" + str + "\".", 0);
+
 	image = cv::imread(str);
 
 	if (image.data == NULL)
@@ -227,28 +243,35 @@ bool OpenCVWrapper::GetImageFromFile(
 	sourceWidth = image.cols;
 	sourceHeight = image.rows;
 
-	GetWrapperLogQueue().QueueLog("Loaded texture from path: \"" + str + "\" at resolution: (" + std::to_string(sourceWidth) + ", " + std::to_string(sourceHeight) + ").", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Loaded texture from path: \"" + str + "\" at resolution: (" + std::to_string(sourceWidth) + ", " + std::to_string(sourceHeight) + ").", 0);
+
 	return true;
 }
 
 void OpenCVWrapper::WriteMatToFile(
 	cv::Mat image,
-	const std::string & outputPath)
+	const std::string & outputPath,
+	const bool debug)
 {
-	GetMatQueueWriter().QueueMat(outputPath, image);
-	GetWrapperLogQueue().QueueLog("Queued image to be written to path: \"" + outputPath + "\".", 0);
+	GetMatQueueWriter().QueueMat(outputPath, image, debug);
+
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Queued image to be written to path: \"" + outputPath + "\".", 0);
 }
 
 bool OpenCVWrapper::ProcessImage(
 	const FResizeParameters & resizeParameters,
 	const FChessboardSearchParameters & textureSearchParameters,
 	cv::Mat image,
-	float *& data)
+	float *& data,
+	const bool debug)
 {
 	float resizePercentage = textureSearchParameters.resizePercentage;
 	float checkerBoardSquareSizeMM = textureSearchParameters.checkerBoardSquareSizeMM;
 
-	GetWrapperLogQueue().QueueLog("Prepared image of size: (" + std::to_string(image.cols) + ", " + std::to_string(image.rows) + ").", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Prepared image of size: (" + std::to_string(image.cols) + ", " + std::to_string(image.rows) + ").", 0);
 
 	cv::Size sourceImageSize(resizeParameters.sourceX, resizeParameters.sourceY);
 	cv::Size resizedImageSize(resizeParameters.resizeX, resizeParameters.resizeY);
@@ -259,11 +282,12 @@ bool OpenCVWrapper::ProcessImage(
 	{
 		cv::resize(image, image, resizedImageSize, 0.0f, 0.0f, cv::INTER_LINEAR);
 
-		GetWrapperLogQueue().QueueLog("Resized image from: (" + 
-			std::to_string(resizeParameters.sourceX) + ", " +
-			std::to_string(resizeParameters.sourceY) + ") to: (" +
-			std::to_string(resizeParameters.resizeX) + ", " +
-			std::to_string(resizeParameters.resizeY) + ").", 0);
+		if (debug)
+			GetWrapperLogQueue().QueueLog("Resized image from: (" + 
+				std::to_string(resizeParameters.sourceX) + ", " +
+				std::to_string(resizeParameters.sourceY) + ") to: (" +
+				std::to_string(resizeParameters.resizeX) + ", " +
+				std::to_string(resizeParameters.resizeY) + ").", 0);
 	}
 
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
@@ -279,7 +303,8 @@ bool OpenCVWrapper::ProcessImage(
 	if (textureSearchParameters.exhaustiveSearch)
 		findFlags |= cv::CALIB_CB_EXHAUSTIVE;
 
-	GetWrapperLogQueue().QueueLog("Beginning calibration pattern detection for image.", 0);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Beginning calibration pattern detection for image.", 0);
 
 	bool patternFound = cv::findChessboardCorners(image, patternSize, imageCorners, findFlags);
 
@@ -289,7 +314,8 @@ bool OpenCVWrapper::ProcessImage(
 		return false;
 	}
 
-	GetWrapperLogQueue().QueueLog("Found pattern in image.", 1);
+	if (debug)
+		GetWrapperLogQueue().QueueLog("Found pattern in image.", 1);
 
 	cv::TermCriteria cornerSubPixCriteria(
 		cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS,
@@ -302,7 +328,7 @@ bool OpenCVWrapper::ProcessImage(
 	if (textureSearchParameters.writeDebugTextureToFile)
 	{
 		cv::drawChessboardCorners(image, patternSize, imageCorners, patternFound);
-		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath);
+		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath, debug);
 	}
 
 	data = reinterpret_cast<float*>(imageCorners.data());

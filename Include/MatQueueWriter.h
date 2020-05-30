@@ -32,8 +32,12 @@ public:
 	MatQueueWriter(MatQueueWriter const&) = delete;
 	void operator=(MatQueueWriter const&) = delete;
 
-	__declspec(dllexport) void QueueMat(const std::string & outputPath, cv::Mat inputMat);
-	__declspec(dllexport) void Poll();
+	__declspec(dllexport) void QueueMat(
+		const std::string & outputPath,
+		cv::Mat inputMat,
+		const bool debug);
+
+	__declspec(dllexport) void Poll(const bool debug);
 
 private:
 	// void ValidateFilePath(std::string & folderPath, std::string& fileName, std::string& outputPath);

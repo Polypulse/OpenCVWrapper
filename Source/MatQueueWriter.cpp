@@ -14,7 +14,10 @@ extern "C" __declspec(dllexport) MatQueueWriter & GetMatQueueWriter()
 	return instance;
 }
 
-extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(const std::string & outputPath, cv::Mat inputMat)
+extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(
+	const std::string & outputPath,
+	cv::Mat inputMat,
+	const bool debug)
 {
 	MatQueueContainer container;
 	container.folderPath = outputPath;
@@ -25,7 +28,7 @@ extern "C" __declspec(dllexport) void MatQueueWriter::QueueMat(const std::string
 	queueMutex.unlock();
 }
 
-extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
+extern "C" __declspec(dllexport) void MatQueueWriter::Poll(const bool debug)
 {
 	bool isQueued = matQueue.empty() == false;
 	while (isQueued)
@@ -49,7 +52,9 @@ extern "C" __declspec(dllexport) void MatQueueWriter::Poll()
 			return;
 		}
 
-		GetWrapperLogQueue().QueueLog("Successfully wrote image to file: \"" + outputPath + "\".", 0);
+		if (debug)
+			GetWrapperLogQueue().QueueLog("Successfully wrote image to file: \"" + outputPath + "\".", 0);
+
 		isQueued = matQueue.empty() == false;
 	}
 }
