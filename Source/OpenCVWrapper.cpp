@@ -104,11 +104,13 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 		GetWrapperLogQueue().QueueLog("Done dequeuing work units, preparing calibration using " + std::to_string(corners.size()) + " sets of points.", 0);
 
 	std::vector<cv::Mat> rvecs, tvecs;
-	cv::Mat cameraMatrix = cv::Mat::eye(3, 3, cv::DataType<double>::type);
-	cv::Mat distortionCoefficients = cv::Mat::zeros(8, 1, cv::DataType<double>::type);
+
 	cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
-	cv::Point2d principalPoint = cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY);
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
+
+	cv::Mat cameraMatrix				= cv::Mat::eye(3, 3, cv::DataType<double>::type);
+	cv::Mat distortionCoefficients		= cv::Mat::zeros(8, 1, cv::DataType<double>::type);
+	cv::Point2d principalPoint			= cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY);
 
 	int sourcePixelWidth = resizeParameters.nativeX;
 	int sourcePixelHeight = resizeParameters.nativeY;
@@ -169,29 +171,24 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	cv::calibrationMatrixValues(cameraMatrix, imageSize, sensorWidth, sensorHeight, fovX, fovY, focalLength, principalPoint, aspectRatio);
 
-	// fovX *= inverseResizeRatio;
-	// fovY *= inverseResizeRatio;
-	// focalLength *= inverseResizeRatio;
-
 	principalPoint.x = sourcePixelWidth * (principalPoint.x / sensorWidth);
 	principalPoint.y = sourcePixelHeight * (principalPoint.y / sensorHeight);
 
-	output.fovX = (float)fovX;
-	output.fovY = (float)fovY;
-	output.focalLengthMM = (float)focalLength;
-	output.aspectRatio = (float)aspectRatio;
-	output.sensorSizeMMX = (float)sensorWidth;
-	output.sensorSizeMMY = (float)sensorHeight;
+	output.fovX					= (float)fovX;
+	output.fovY					= (float)fovY;
+	output.focalLengthMM		= (float)focalLength;
+	output.aspectRatio			= (float)aspectRatio;
+	output.sensorSizeMMX		= (float)sensorWidth;
+	output.sensorSizeMMY		= (float)sensorHeight;
 	output.principalPixelPointX = (float)principalPoint.x;
 	output.principalPixelPointY = (float)principalPoint.y;
-	output.resolutionX = resizeParameters.nativeX;
-	output.resolutionY = resizeParameters.nativeY;
-	output.k1 = (float)distortionCoefficients.at<double>(0, 0);
-	output.k2 = (float)distortionCoefficients.at<double>(1, 0);
-	output.p1 = (float)distortionCoefficients.at<double>(2, 0);
-	output.p2 = (float)distortionCoefficients.at<double>(3, 0);
-	output.k3 = (float)distortionCoefficients.at<double>(4, 0);
-
+	output.resolutionX			= resizeParameters.nativeX;
+	output.resolutionY			= resizeParameters.nativeY;
+	output.k1					= (float)distortionCoefficients.at<double>(0, 0);
+	output.k2					= (float)distortionCoefficients.at<double>(1, 0);
+	output.p1					= (float)distortionCoefficients.at<double>(2, 0);
+	output.p2					= (float)distortionCoefficients.at<double>(3, 0);
+	output.k3					= (float)distortionCoefficients.at<double>(4, 0);
 
 	return true;
 }
@@ -298,8 +295,8 @@ bool OpenCVWrapper::ProcessImage(
 		textureSearchParameters.checkerBoardCornerCountX,
 		textureSearchParameters.checkerBoardCornerCountY);
 
-	int findFlags = cv::CALIB_CB_NORMALIZE_IMAGE;
-	findFlags |= cv::CALIB_CB_ADAPTIVE_THRESH;
+	int findFlags	= cv::CALIB_CB_NORMALIZE_IMAGE;
+	findFlags		|= cv::CALIB_CB_ADAPTIVE_THRESH;
 
 	if (textureSearchParameters.exhaustiveSearch)
 		findFlags |= cv::CALIB_CB_EXHAUSTIVE;
