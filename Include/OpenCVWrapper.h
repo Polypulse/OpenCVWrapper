@@ -34,8 +34,12 @@ struct FChessboardSearchParameters
 	bool exhaustiveSearch;
 	float checkerBoardSquareSizeMM;
 	int checkerBoardCornerCountX, checkerBoardCornerCountY;
-	bool writeDebugTextureToFile;
-	char debugTextureOutputPath[260];
+
+	bool writePreCornerDetectionTextureToFile;
+	char preCornerDetectionTextureOutputPath[260];
+
+	bool writeCornerVisualizationTextureToFile;
+	char cornerVisualizationTextureOutputPath[260];
 
 	FChessboardSearchParameters()
 	{
@@ -46,8 +50,12 @@ struct FChessboardSearchParameters
 		exhaustiveSearch = false;
 		checkerBoardSquareSizeMM = 12.7f;
 		checkerBoardCornerCountX = 0; checkerBoardCornerCountY = 0;
-		writeDebugTextureToFile = false;
-		memset(debugTextureOutputPath, 0, sizeof(char) * 260);
+
+		writePreCornerDetectionTextureToFile = false;
+		memset(preCornerDetectionTextureOutputPath, 0, sizeof(char) * 260);
+
+		writeCornerVisualizationTextureToFile = false;
+		memset(cornerVisualizationTextureOutputPath, 0, sizeof(char) * 260);
 	}
 };
 

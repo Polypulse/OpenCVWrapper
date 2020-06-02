@@ -204,11 +204,11 @@ bool OpenCVWrapper::GetImageFromArray(
 	if (debug)
 		GetWrapperLogQueue().QueueLog("Copying pixel data of pixel count: " + std::to_string(width * height) + " to image of size: (" + std::to_string(width) + ", " + std::to_string(height) + ").", 0);
 
-	image = cv::Mat(width, height, cv::DataType<uint8_t>::type);
+	image = cv::Mat(height, width, cv::DataType<uint8_t>::type);
 
 	int pixelCount = width * height;
 	for (int pi = 0; pi < pixelCount; pi++)
-		image.at<uint8_t>(pi / width, pi % height) = *(pixels + pi);
+		image.at<uint8_t>(pi / width, pi % width) = *(pixels + pi * sizeof(uint));
 
 	if (debug)
 		GetWrapperLogQueue().QueueLog("Done copying pixel data.", 0);
@@ -301,6 +301,9 @@ bool OpenCVWrapper::ProcessImage(
 	if (textureSearchParameters.exhaustiveSearch)
 		findFlags |= cv::CALIB_CB_EXHAUSTIVE;
 
+	if (textureSearchParameters.writePreCornerDetectionTextureToFile)
+		WriteMatToFile(image, textureSearchParameters.preCornerDetectionTextureOutputPath, debug);
+
 	if (debug)
 		GetWrapperLogQueue().QueueLog("Beginning calibration pattern detection for image.", 0);
 
@@ -323,10 +326,10 @@ bool OpenCVWrapper::ProcessImage(
 
 	cv::cornerSubPix(image, imageCorners, cv::Size(5, 5), cv::Size(-1, -1), cornerSubPixCriteria);
 
-	if (textureSearchParameters.writeDebugTextureToFile)
+	if (textureSearchParameters.writeCornerVisualizationTextureToFile)
 	{
 		cv::drawChessboardCorners(image, patternSize, imageCorners, patternFound);
-		WriteMatToFile(image, textureSearchParameters.debugTextureOutputPath, debug);
+		WriteMatToFile(image, textureSearchParameters.cornerVisualizationTextureOutputPath, debug);
 	}
 
 	// data = reinterpret_cast<float*>(imageCorners.data());
