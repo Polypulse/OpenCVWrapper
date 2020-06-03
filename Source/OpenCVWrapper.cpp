@@ -80,14 +80,14 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	std::vector<std::vector<cv::Point2f>> corners(imageCount, std::vector<cv::Point2f>(cornerCount));
 	std::vector<std::vector<cv::Point3f>> objectPoints(imageCount, std::vector<cv::Point3f>(cornerCount));
 
-	float inverseResizeRatio = resizeParameters.nativeX / (float)resizeParameters.resizeX;
+	double inverseResizeRatio = resizeParameters.nativeX / (double)resizeParameters.resizeX;
 
 	for (int i = 0; i < imageCount; i++)
 	{
 		for (int ci = 0; ci < cornerCount; ci++)
 		{
-			corners[i][ci].x = *(cornersData + (i * cornerCount) * 2 + ci * 2)/* * inverseResizeRatio*/;
-			corners[i][ci].y = *(cornersData + (i * cornerCount) * 2 + ci * 2 + 1)/* * inverseResizeRatio*/;
+			corners[i][ci].x = *(cornersData + (i * cornerCount) * 2 + ci * 2) * (float)inverseResizeRatio;
+			corners[i][ci].y = *(cornersData + (i * cornerCount) * 2 + ci * 2 + 1) * (float)inverseResizeRatio;
 
 			objectPoints[i][ci] = cv::Point3d(
 				chessboardSquareSizeMM * (ci % cornerCountX), 
@@ -105,12 +105,13 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	std::vector<cv::Mat> rvecs, tvecs;
 
-	cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
+	// cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
+	cv::Size imageSize(resizeParameters.nativeX, resizeParameters.nativeY);
 	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
 
 	cv::Mat cameraMatrix				= cv::Mat::eye(3, 3, cv::DataType<double>::type);
 	cv::Mat distortionCoefficients		= cv::Mat::zeros(8, 1, cv::DataType<double>::type);
-	cv::Point2d principalPoint			= cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY);
+	cv::Point2d principalPoint			= cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY * 0.5);
 
 	int sourcePixelWidth = resizeParameters.nativeX;
 	int sourcePixelHeight = resizeParameters.nativeY;
@@ -121,8 +122,8 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	if (debug)
 		GetWrapperLogQueue().QueueLog("Sensor size: (" + std::to_string(sensorWidth) + ", " + std::to_string(sensorHeight) + ") mm, diagonal: (" + std::to_string(calibrationParameters.sensorDiagonalSizeMM) + " mm.", 0);
 
-	double fovX = 0.0f, fovY = 0.0f, focalLength = 0.0f;
-	double aspectRatio = 0.0f;
+	double fovX = 0.0, fovY = 0.0, focalLength = 0.0;
+	double aspectRatio = 0.0;
 
 	int flags = 0;
 	flags |= calibrationParameters.useInitialIntrinsicValues			?	cv::CALIB_USE_INTRINSIC_GUESS : 0;
@@ -138,21 +139,31 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	if (flags & cv::CALIB_USE_INTRINSIC_GUESS || flags & cv::CALIB_FIX_PRINCIPAL_POINT)
 	{
-		cameraMatrix.at<double>(0, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionX);
-		cameraMatrix.at<double>(1, 2) = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionY);
+		double px = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionX);
+		double py = static_cast<double>(calibrationParameters.initialPrincipalPointNativePixelPositionY);
+
+		cameraMatrix.at<double>(0, 2) = px;
+		cameraMatrix.at<double>(1, 2) = py;
+
+		principalPoint.x = px;
+		principalPoint.y = py;
+
 		if (debug)
 			GetWrapperLogQueue().QueueLog("Setting initial principal point to: (" + 
 				std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionX) + ", " +
 				std::to_string(calibrationParameters.initialPrincipalPointNativePixelPositionY) + ")", 0);
 	}
 
+	double aspect = resizeParameters.nativeY / static_cast<double>(resizeParameters.nativeX);
+	cameraMatrix.at<double>(0, 0) = aspect;
+
+	/*
 	else if (flags & cv::CALIB_FIX_ASPECT_RATIO)
 	{
-		double aspect = resizeParameters.nativeX / static_cast<double>(resizeParameters.nativeY);
-		cameraMatrix.at<double>(0, 0) = aspect;
 		if (debug)
 			GetWrapperLogQueue().QueueLog("Fixing aspect ratio at: " + std::to_string(aspect), 0);
 	}
+	*/
 
 	GetWrapperLogQueue().QueueLog("Calibrating...", 0);
 
