@@ -110,10 +110,13 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 
 	// cv::Size imageSize(resizeParameters.resizeX, resizeParameters.resizeY);
 	cv::Size imageSize(resizeParameters.nativeX, resizeParameters.nativeY);
-	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.001f);
+	cv::TermCriteria termCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 60, 0.1f);
 
 	cv::Mat cameraMatrix				= cv::Mat::eye(3, 3, cv::DataType<double>::type);
-	cv::Mat distortionCoefficients		= cv::Mat::zeros(8, 1, cv::DataType<double>::type);
+	cv::Mat distortionCoefficients;
+	if (!calibrationParameters.useRationalModel)
+		distortionCoefficients = cv::Mat::zeros(8, 1, cv::DataType<double>::type);
+	else distortionCoefficients = cv::Mat::zeros(5, 1, cv::DataType<double>::type);
 	cv::Point2d principalPoint			= cv::Point2d(resizeParameters.resizeX * 0.5, resizeParameters.resizeY * 0.5);
 
 	int sourcePixelWidth = resizeParameters.nativeX;
@@ -132,13 +135,18 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	flags |= calibrationParameters.useInitialIntrinsicValues			?	cv::CALIB_USE_INTRINSIC_GUESS : 0;
 	flags |= calibrationParameters.keepPrincipalPixelPositionFixed		?	cv::CALIB_FIX_PRINCIPAL_POINT : 0;
 	flags |= calibrationParameters.keepAspectRatioFixed					?	cv::CALIB_FIX_ASPECT_RATIO : 0;
-	flags |= calibrationParameters.lensHasTangentalDistortion			?	cv::CALIB_ZERO_TANGENT_DIST : 0;
+	flags |= calibrationParameters.lensHasTangentalDistortion == false	?	cv::CALIB_ZERO_TANGENT_DIST : 0;
 	flags |= calibrationParameters.fixRadialDistortionCoefficientK1		?	cv::CALIB_FIX_K1 : 0;
 	flags |= calibrationParameters.fixRadialDistortionCoefficientK2		?	cv::CALIB_FIX_K2 : 0;
 	flags |= calibrationParameters.fixRadialDistortionCoefficientK3		?	cv::CALIB_FIX_K3 : 0;
-	flags |= calibrationParameters.fixRadialDistortionCoefficientK4		?	cv::CALIB_FIX_K4 : 0;
-	flags |= calibrationParameters.fixRadialDistortionCoefficientK5		?	cv::CALIB_FIX_K5 : 0;
-	flags |= calibrationParameters.fixRadialDistortionCoefficientK6		?	cv::CALIB_FIX_K6 : 0;
+
+	if (calibrationParameters.useRationalModel)
+	{
+		flags |= cv::CALIB_RATIONAL_MODEL;
+		flags |= calibrationParameters.fixRadialDistortionCoefficientK4		?	cv::CALIB_FIX_K4 : 0;
+		flags |= calibrationParameters.fixRadialDistortionCoefficientK5		?	cv::CALIB_FIX_K5 : 0;
+		flags |= calibrationParameters.fixRadialDistortionCoefficientK6		?	cv::CALIB_FIX_K6 : 0;
+	}
 
 	if (flags & cv::CALIB_USE_INTRINSIC_GUESS || flags & cv::CALIB_FIX_PRINCIPAL_POINT)
 	{
@@ -188,21 +196,30 @@ extern "C" __declspec(dllexport) bool OpenCVWrapper::CalibrateLens(
 	principalPoint.x = sourcePixelWidth * (principalPoint.x / sensorWidth);
 	principalPoint.y = sourcePixelHeight * (principalPoint.y / sensorHeight);
 
-	output.fovX					= (float)fovX;
-	output.fovY					= (float)fovY;
-	output.focalLengthMM		= (float)focalLength;
-	output.aspectRatio			= (float)aspectRatio;
-	output.sensorSizeMMX		= (float)sensorWidth;
-	output.sensorSizeMMY		= (float)sensorHeight;
-	output.principalPixelPointX = (float)principalPoint.x;
-	output.principalPixelPointY = (float)principalPoint.y;
+	output.fovX					= static_cast<float>(fovX);
+	output.fovY					= static_cast<float>(fovY);
+	output.focalLengthMM		= static_cast<float>(focalLength);
+	output.aspectRatio			= static_cast<float>(aspectRatio);
+	output.sensorSizeMMX		= static_cast<float>(sensorWidth);
+	output.sensorSizeMMY		= static_cast<float>(sensorHeight);
+	output.principalPixelPointX = static_cast<float>(principalPoint.x);
+	output.principalPixelPointY = static_cast<float>(principalPoint.y);
+
 	output.resolutionX			= resizeParameters.nativeX;
 	output.resolutionY			= resizeParameters.nativeY;
-	output.k1					= (float)distortionCoefficients.at<double>(0, 0);
-	output.k2					= (float)distortionCoefficients.at<double>(1, 0);
-	output.p1					= (float)distortionCoefficients.at<double>(2, 0);
-	output.p2					= (float)distortionCoefficients.at<double>(3, 0);
-	output.k3					= (float)distortionCoefficients.at<double>(4, 0);
+
+	output.k1					= static_cast<float>(distortionCoefficients.at<double>(0, 0));
+	output.k2					= static_cast<float>(distortionCoefficients.at<double>(1, 0));
+	output.p1					= static_cast<float>(distortionCoefficients.at<double>(2, 0));
+	output.p2					= static_cast<float>(distortionCoefficients.at<double>(3, 0));
+	output.k3					= static_cast<float>(distortionCoefficients.at<double>(4, 0));
+
+	if (calibrationParameters.useRationalModel)
+	{
+		output.k4 = static_cast<float>(distortionCoefficients.at<double>(5, 0));
+		output.k5 = static_cast<float>(distortionCoefficients.at<double>(6, 0));
+		output.k6 = static_cast<float>(distortionCoefficients.at<double>(7, 0));
+	}
 
 	return true;
 }

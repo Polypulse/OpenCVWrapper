@@ -76,6 +76,7 @@ struct FCalibrateLensParameters
 	bool fixRadialDistortionCoefficientK4;
 	bool fixRadialDistortionCoefficientK5;
 	bool fixRadialDistortionCoefficientK6;
+	bool useRationalModel;
 
 	FCalibrateLensParameters()
 	{
@@ -93,6 +94,7 @@ struct FCalibrateLensParameters
 		fixRadialDistortionCoefficientK4 = false;
 		fixRadialDistortionCoefficientK5 = false;
 		fixRadialDistortionCoefficientK6 = false;
+		useRationalModel = false;
 	}
 };
 
@@ -106,7 +108,7 @@ struct FCalibrateLensOutput
 	float sensorSizeMMX, sensorSizeMMY;
 	float principalPixelPointX, principalPixelPointY;
 	int resolutionX, resolutionY;
-	float k1, k2, p1, p2, k3;
+	float k1, k2, p1, p2, k3, k4, k5, k6;
 
 	FCalibrateLensOutput()
 	{
@@ -122,6 +124,7 @@ struct FCalibrateLensOutput
 		resolutionX = 0;
 		resolutionY = 0;
 		k1 = 0; k2 = 0; p1 = 0; p2 = 0; k3 = 0;
+		k4 = 0; k5 = 0; k6 = 0;
 	}
 };
 
