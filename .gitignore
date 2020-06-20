@@ -360,3 +360,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 ThirdParty/*
+x64/*
+.vs/
+ThirdParty.7z
