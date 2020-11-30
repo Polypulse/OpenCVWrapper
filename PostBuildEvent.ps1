@@ -3,9 +3,6 @@ param([string]$projectdir,
       [string]$configuration,
       [string]$name);
 
-# $targetpath = [IO.File]::ReadAllText(".\PostBuildTargetPath.txt")
-# echo "Copying from: $outputpath to: $targetpath"
-
 $includedir = "Include\"
 robocopy "$projectdir$includedir\" "$projectdir\..\Include\" /is
 
@@ -24,7 +21,7 @@ robocopy "$outputpath" "$copyPath\Binaries\$configuration\Static\" "$name.lib" /
 robocopy "$projectdir\Include" "$copyPath\Include\"
 robocopy "$projectdir\ThirdParty\OpenCV\Include\" "$copyPath\OpenCV\Include\" /E
 
-robocopy "$outputpath" "$projectdir\..\..\..\..\Binaries\ThirdParty\Win64\" "$name.dll" /is
+robocopy "$outputpath" "$projectdir\..\..\..\Binaries\ThirdParty\Win64\" "$name.dll" /is
 if ($configuration -eq "Debug") {
-    robocopy "$outputpath" "$projectdir\..\..\..\..\Binaries\ThirdParty\Win64\" "$name.pdb" /is
+    robocopy "$outputpath" "$projectdir\..\..\..\Binaries\ThirdParty\Win64\" "$name.pdb" /is
 }
