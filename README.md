@@ -20,3 +20,8 @@ You can download release build of this DLL [here](https://github.com/Polypulse/O
 2. Execute ```./PullDependencies.ps1``` and wait for ThirdParty.zip to download and extract. If your having issues with this script, you can download and extract the file directory [here](https://github.com/Polypulse/OpenCVWrapper/releases).
 3. Open OpenCVWrapper.sln
 4. Select Debug or Release and press F7 to build.
+
+## OpenCV Binaries
+OpenCV needs to be compiled in a very specific way in order for it to play nicely with Unreal Engine. Therefore precompiled binaries can be found in the releases page as *ThirdParty.zip". However, if you need update OpenCV below will be some instructions on how to compile OpenCV for Unreal Engine.
+
+TODO
