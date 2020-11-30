@@ -1,0 +1,2 @@
+Invoke-WebRequest -Uri "https://github.com/Polypulse/OpenCVWrapper/releases/download/v0.1/ThirdParty.zip" -UseBasicParsing -OutFile ./ThirdParty.zip
+Expand-Archive -Force -LiteralPath './ThirdParty.zip' -DestinationPath "./"

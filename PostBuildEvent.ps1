@@ -9,6 +9,11 @@ echo "Copying from: $outputpath to: $targetpath"
 $includedir = "Include\"
 robocopy "$projectdir$includedir\" "$targetpath\Include\" /is
 
+New-Item "$targetpath\Binaries\$configuration\Dynamic\" -ItemType Directory -ea 0
+New-Item "$targetpath\Binaries\$configuration\Static\" -ItemType Directory -ea 0
+New-Item "$targetpath\..\..\..\Binaries\ThirdParty\Win64\" -ItemType Directory -ea 0
+New-Item "$targetpath\..\..\..\Binaries\ThirdParty\Win64\" -ItemType Directory -ea 0
+
 robocopy "$outputpath" "$targetpath\Binaries\$configuration\Dynamic\" "$name.dll" /is
 robocopy "$outputpath" "$targetpath\Binaries\$configuration\Dynamic\" "$name.pdb" /is
 robocopy "$outputpath" "$targetpath\Binaries\$configuration\Static\" "$name.lib" /is
