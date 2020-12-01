@@ -4,13 +4,11 @@ param([string]$projectdir,
       [string]$name);
 
 $includedir = "Include\"
-robocopy "$projectdir$includedir\" "$projectdir\..\Include\" /is
-
 $copyPath = "$projectdir\..\Source\ThirdParty\OpenCVWrapper\"
 
 New-Item "$copyPath\Binaries\$configuration\Dynamic\" -ItemType Directory -ea 0
 New-Item "$copyPath\Binaries\$configuration\Static\" -ItemType Directory -ea 0
-New-Item "$copyPath\\Include" -ItemType Directory -ea 0
+New-Item "$copyPath\Include" -ItemType Directory -ea 0
 New-Item "$copyPath\OpenCV\Include" -ItemType Directory -ea 0
 
 robocopy "$outputpath" "$copyPath\Binaries\$configuration\Dynamic\" "$name.dll" /is
